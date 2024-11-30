@@ -1,0 +1,24 @@
+{
+  "100": {
+    "name": "Game Length",
+    "values": {
+      "20": {
+        "name": "Long game - End at 20 points",
+        "tmdisplay": "Ends at 20 points"
+      },
+      "15": {
+        "name": "Standard game - End at 15 points",
+        "tmdisplay": "Ends at 15 points"
+      },
+      "10": {
+        "name": "Short game - End at 10 points",
+        "tmdisplay": "Ends at 10 points"
+      },
+      "99": {
+        "name": "Play one hand!",
+        "tmdisplay": "Play one hand!"
+      }
+    },
+    "default": 15
+  }
+}
