@@ -1,0 +1,74 @@
+{
+    "table":
+    {
+        "table_total_hand_count":
+        {
+            "id": 10,
+            "name": "Number of hands",
+            "type": "int"
+        },
+        "table_total_round_count":
+        {
+            "id": 11,
+            "name": "Number of rounds",
+            "type": "int"
+        },
+        "table_highest_played_number":
+        {
+            "id": 12,
+            "name": "Highest value played",
+            "type": "float"
+        },
+        "table_highest_played_num_digits":
+        {
+            "id": 13,
+            "name": "Card count in highest value",
+            "type": "int"
+        },
+        "table_pass_count":
+        {
+            "id": 14,
+            "name": "Number of passes",
+            "type": "int"
+        },
+        "table_played_cards_count":
+        {
+            "id": 15,
+            "name": "Number of cards played",
+            "type": "float"
+        }
+    },
+    "player":
+    {
+        "player_highest_played_number":
+        {
+            "id": 12,
+            "name": "Highest value played",
+            "type": "float"
+        },
+        "player_highest_played_num_digits":
+        {
+            "id": 13,
+            "name": "Card count in highest value",
+            "type": "int"
+        },
+        "player_pass_count":
+        {
+            "id": 14,
+            "name": "Number of passes",
+            "type": "int"
+        },
+        "player_played_cards_count":
+        {
+            "id": 15,
+            "name": "Number of cards played",
+            "type": "float"
+        },
+        "player_turn_count":
+        {
+            "id": 16,
+            "name": "Turns taken by player",
+            "type": "float"
+        }
+    }
+}

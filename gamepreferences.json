@@ -1,0 +1,36 @@
+{
+    "100":
+    {
+        "name": "Walking characters",
+        "values":
+        {
+            "1":
+            {
+                "name": "On",
+                "cssPref": "walking-characters-on"
+            },
+            "2":
+            {
+                "name": "Off",
+                "cssPref": "walking-characters-off"
+            }
+        },
+        "default": 1
+    },
+    "101":
+    {
+        "name": "Auto-play finishing hands",
+        "values":
+        {
+            "1":
+            {
+                "name": "On"
+            },
+            "2":
+            {
+                "name": "Off"
+            }
+        },
+        "default": 2
+    }
+}
