@@ -524,13 +524,6 @@ define([
                 });
             },
 
-            timeBombPassButtonIfNeeded(){                
-                var passButton = dojo.query('#page-title .pass-play-button')[0];
-
-                if(!this.canPlayHigher())
-                    this.gameui.timeBombButton(dojo.query('#page-title .pass-play-button')[0], 6000, {wiggleRoom: 2000, globalTimerName: 'passBomb'});
-            },
-
             moveCardsOffHand(onAnimationEnd){
                 this.selectedCards = {};
 
