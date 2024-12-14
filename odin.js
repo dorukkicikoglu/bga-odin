@@ -101,8 +101,11 @@ function (dojo, declare) {
                         }
                         this.updatePageTitle();
                     } else if(this.isCurrentPlayerActive()){
-                        this.gamedatas.gamestate.description = _('${playerYou} may play ${tableCardsCount}-${maxPlayableCardCount} cards');
-                        this.gamedatas.gamestate.descriptionmyturn = _('${playerYou} may play ${tableCardsCount}-${maxPlayableCardCount} cards');
+                        var desc = this.myself.hand.canPlayHigher() ? _('${playerYou} may play ${tableCardsCount}-${maxPlayableCardCount} cards') : dojo.string.substitute(_('${playerYou} cannot beat ${cardIcons}'), {playerYou: this.divYou(), cardIcons: this.createCardIcons(this.tableHandler.tableCards)});
+
+                        this.gamedatas.gamestate.description = desc;
+                        this.gamedatas.gamestate.descriptionmyturn = desc;
+
                         this.updatePageTitle();
                     }
 
@@ -149,7 +152,9 @@ function (dojo, declare) {
                             dojo.attr(playCardMenu, 'has-selected-cards', 'false');
 
                             dojo.query('.pass-play-button', titleContainer).connect('onclick', this, () => { this.myself.hand.passTurn(); });
-                            this.myself.hand.timeBombPassButtonIfNeeded();
+
+                            if(!this.myself.hand.canPlayHigher())
+                                this.timeBombButton(dojo.query('#page-title .pass-play-button')[0], 6000, {wiggleRoom: 2000, globalTimerName: 'passBomb'});
                         }
                     break;
                 }
