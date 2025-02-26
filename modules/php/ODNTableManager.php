@@ -1,6 +1,8 @@
 <?php
 
 class TableManager extends APP_DbObject{
+    public $parent;
+
     function __construct($parent) {
         $this->parent = $parent;
     }
@@ -30,7 +32,7 @@ class TableManager extends APP_DbObject{
     }
     function getCardsWasOnTable(){ return $this->getCardsOnTable('was_on_table'); }
 
-    function getCardsDataSummation($cardsData){
+    function getCardsDataSummation($cardsData): int{
         $ranks = array_map(function($card) { return $card['rank']; }, $cardsData);
         rsort($ranks);
         
@@ -103,7 +105,7 @@ class TableManager extends APP_DbObject{
         self::DbQuery("UPDATE cards SET card_location = 'was_on_table' WHERE card_location = 'on_table'"); //place previous table cards to the side
         self::DbQuery("UPDATE cards SET card_location = 'on_table' WHERE card_id IN ($cardIDsSQL)"); //place selected cards on the table
         $this->parent->giveExtraTime($activePlayerID);
-
+        
         $highestPlayedNumber_table = (int) $this->parent->getStat("table_highest_played_number");
         if($playedCardsSummation > $highestPlayedNumber_table){
             $this->parent->setStat($playedCardsSummation, 'table_highest_played_number');

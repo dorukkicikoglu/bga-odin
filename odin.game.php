@@ -25,6 +25,11 @@ require_once ('modules/php/ODNTableManager.php');
 
 class odin extends Table
 {
+    public GlobalsManager $globalsManager;
+    public $cardsDeck;
+    public HandManager $handManager;
+    public TableManager $tableManager;
+
 	function __construct( )
 	{
         // Your global variables labels:
@@ -151,7 +156,7 @@ class odin extends Table
         _ when the game starts
         _ when a player refreshes the game page (F5)
     */
-    protected function getAllDatas()
+    protected function getAllDatas(): array
     {
         $result = array();
         $result['version'] = intval($this->gamestate->table_globals[300]);
@@ -432,7 +437,7 @@ class odin extends Table
         you must _never_ use getCurrentPlayerId() or getCurrentPlayerName(), otherwise it will fail with a "Not logged" error message. 
     */
 
-    function zombieTurn( $state, $active_player )
+    function zombieTurn( $state, $active_player ): void
     {
     	$statename = $state['name'];
     	
@@ -481,33 +486,6 @@ class odin extends Table
 
         self::trace("Logging: <span style='color: $color;'>$txt</span>");
         self::notifyAllPlayers('plop',"<textarea style='height: 104px; width: 230px;color:$color'>$txt</textarea>",array());
-    }
-
-    public function loadBugReportSQL(int $reportId, array $studioPlayers): void {
-        $prodPlayers = $this->getObjectListFromDb('SELECT player_id FROM player', true);
-        if (count($prodPlayers) != count($studioPlayers))
-            throw new BgaVisibleSystemException("Incorrect player count (bug report has $prodCount players, studio table has $studioCount players)");
-        
-        // Change for your game
-        // We are setting the current state to match the start of a player's turn if it's already game over
-        $sql = ['UPDATE global SET global_value=10 WHERE global_id=1 AND global_value=99'];
-        foreach ($prodPlayers as $index => $prodId) {
-            $studioPlayer = $studioPlayers[$index];
-
-            // All games can keep this SQL
-            $sql[] = "UPDATE player SET player_id=$studioPlayer WHERE player_id=$prodId";
-            $sql[] = "UPDATE global SET global_value=$studioPlayer WHERE global_value=$prodId";
-            $sql[] = "UPDATE stats SET stats_player_id=$studioPlayer WHERE stats_player_id=$prodId";
-
-            // Add game-specific SQL update the tables for your game
-            $sql[] = "UPDATE cards SET card_location_arg=$studioPlayer WHERE card_location_arg = $prodId";
-        }
-  
-        foreach ($sql as $q) {
-            $this->DbQuery($q);
-        }
-        
-        $this->reloadPlayersBasicInfos();
     }
     
 ///////////////////////////////////////////////////////////////////////////////////:

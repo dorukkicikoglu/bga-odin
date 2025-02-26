@@ -225,9 +225,9 @@ function (dojo, declare) {
                             else if(key == 'NEW_HAND_LOG_ROW')
                                 log = _(log) + '<div class="hand-log-row-child a-log-row-child"></div>';
                             else if(key == 'ARROW_RIGHT')
-                                args['ARROW_RIGHT'] = '<div class="log-arrow log-arrow-right">➜</div>';
+                                args['ARROW_RIGHT'] = '<i class="log-arrow log-arrow-right fa6 fa-arrow-right"></i>';
                             else if(key == 'ARROW_LEFT')
-                                args['ARROW_LEFT'] = '<div class="log-arrow log-arrow-left">⇐</div>';
+                                args['ARROW_LEFT'] = '<i class="log-arrow log-arrow-left fa6 fa-angle-double-left"></i>';
                         }
                     }
                 }
