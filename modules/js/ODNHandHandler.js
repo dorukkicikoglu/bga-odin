@@ -150,59 +150,26 @@ define([
 
                 var resetSet = false;
 
-                if(Object.keys(newSet).length > this.gameui.tableHandler.tableCards.length + 1 && !(this.gameui.tableHandler.tableCards.length == 0 && this.calcAllInOneSet()))
+                if(Object.keys(newSet).length > this.gameui.tableHandler.tableCards.length + 1 && !(this.gameui.tableHandler.tableCards.length == 0 && this.areCardsOneSet()))
                     resetSet = true;
 
                 if(!resetSet){
-                    var setType = this.getSelectedCardsSetType(newSet);
-
-                    if(Object.keys(setType).length == 0)
+                    if(!this.areCardsOneSet(newSet))
                         resetSet = true;
                     else this.selectedCards = newSet;
                 }
 
                 if(resetSet){
-                   this.selectedCards = {};
-                   this.selectedCards[cardData.card_id] = cardData; 
+                    this.selectedCards = {};
+                    if(newSet.hasOwnProperty(cardData.card_id)) //add clicked card to selectedCards unless it was deselected
+                        this.selectedCards[cardData.card_id] = cardData; 
                 }
 
                 dojo.query('.a-card', this.cardsContainer).forEach((aCard) => { dojo.attr(aCard, 'selected', 'false'); });
-
                 for(var card_id in this.selectedCards)
                     dojo.attr(dojo.query('.a-card[card-id="' + card_id + '"]', this.cardsContainer)[0], 'selected', 'true');
 
                 this.updateStatusTextUponCardSelection();
-            },
-
-            getSelectedCardsSetType(cardsDict){
-                var cardsSet = Object.values(cardsDict);
-                if(cardsSet.length <= 0)
-                    return {empty_set: 1};
-
-                cardsSet = this.gameui.tableHandler.sortArrayOfCards(cardsSet);
-
-                var isSameRank = true;
-                var isSameSuit = true;
-
-                for (var i = 0; i < cardsSet.length; i++) {
-                    if(i == 0)
-                        continue;
-
-                    if(cardsSet[i].rank != cardsSet[i - 1].rank)
-                        isSameRank = false;
-
-                    if(cardsSet[i].suit != cardsSet[i - 1].suit)
-                        isSameSuit = false;
-                }
-
-                var result = {};
-
-                if(isSameRank)
-                    result['sameRank'] = cardsSet[0].rank;
-                if(isSameSuit)
-                    result['sameSuit'] = cardsSet[0].suit;
-
-                return result;
             },
 
             updateStatusTextUponCardSelection(){
@@ -223,7 +190,7 @@ define([
 
                 cardsArr.sort((a, b) => { return parseInt(b.rank) - parseInt(a.rank); });
 
-                var confirmButtonVisible = (cardsArr.length >= this.tableCardsCount && cardsArr.length <= this.maxPlayableCardCount) || (this.gameui.tableHandler.tableCards.length == 0 && cardsArr.length == this.handData.length && this.calcAllInOneSet());
+                var confirmButtonVisible = (cardsArr.length >= this.tableCardsCount && cardsArr.length <= this.maxPlayableCardCount) || (this.gameui.tableHandler.tableCards.length == 0 && cardsArr.length == this.handData.length && this.areCardsOneSet());
 
                 var cardIconsHTML = this.gameui.createCardIcons(cardsArr);
 
@@ -337,6 +304,8 @@ define([
                     properties: {width: cardWidth, marginLeft: goToMarginLeft}, 
                     duration: 200,
                     onEnd: () => {
+                        this.gameui.addGoatCardTooltip();
+
                         if(!this.gameui.isMobile())
                             return;
 
@@ -468,7 +437,7 @@ define([
             },
 
             canFinishHand(){
-                if(!this.calcAllInOneSet())
+                if(!this.areCardsOneSet())
                     return false;
 
                 var tableLength = this.gameui.tableHandler.tableCards.length;
@@ -487,17 +456,21 @@ define([
                 var tableValue = this.gameui.getCardsStrength(this.gameui.tableHandler.tableCards);
                 var canPlayHigher = false;
 
+                var hasGoat = dojo.query('.a-card[suit=' + this.gameui.GOAT_SUIT + ']', this.cardsContainer).length > 0;
                 var possibleSets = [];
-                for(var key in suitAndRankDicts.suitDict)
-                    possibleSets.push(suitAndRankDicts.suitDict[key]);
                 for(var key in suitAndRankDicts.rankDict)
                     possibleSets.push(suitAndRankDicts.rankDict[key]);
-
+                for(var key in suitAndRankDicts.suitDict){
+                    if(hasGoat)
+                        suitAndRankDicts.suitDict[key].push(0);
+                    possibleSets.push(suitAndRankDicts.suitDict[key]);
+                }
+                
                 while(possibleSets.length > 0){
                     var nextSet = possibleSets.pop();
                     nextSet.sort((a, b) => { return parseInt(b) - parseInt(a); });
                     var nextSetValue = parseInt(nextSet.join(''));
-
+                    
                     if(nextSetValue > tableValue)
                         return true;
                 }
@@ -596,26 +569,29 @@ define([
                 this.gameui.releaseNotification();
             },
 
-            calcAllInOneSet(){
-                var suitAndRankDicts = this.getSuitAndRankDicts();
-
-                this.allInOneSet = Object.keys(suitAndRankDicts.suitDict).length == 1 || Object.keys(suitAndRankDicts.rankDict).length == 1;
-                return this.allInOneSet;
+            areCardsOneSet(cardsDict = false){
+                let suitAndRankDicts = this.getSuitAndRankDicts(cardsDict);
+                return Object.keys(suitAndRankDicts.suitDict).length == 1 || Object.keys(suitAndRankDicts.rankDict).length == 1;
             },
 
-            getSuitAndRankDicts(){
-                var result = {'suitDict': {}, 'rankDict': {}};
+            getSuitAndRankDicts(cardsDictIn = false){
+                let cardsDict = cardsDictIn ? cardsDictIn : this.handData;
+                let result = {'suitDict': {}, 'rankDict': {}};
 
-                for(key in this.handData){
-                    var cardData = this.handData[key];
+                for(key in cardsDict){
+                    var cardData = cardsDict[key];
 
-                    if(!result.suitDict.hasOwnProperty(cardData.suit))
-                        result.suitDict[cardData.suit] = [];
                     if(!result.rankDict.hasOwnProperty(cardData.rank))
                         result.rankDict[cardData.rank] = [];
 
+                    result.rankDict[cardData.rank].push(cardData.suit);
+                    
+                    if(cardData.suit == this.gameui.GOAT_SUIT && Object.keys(cardsDict).length > 1)
+                        continue;
+
+                    if(!result.suitDict.hasOwnProperty(cardData.suit))
+                        result.suitDict[cardData.suit] = [];
                     result.suitDict[cardData.suit].push(cardData.rank);
-                    result.rankDict[cardData.rank].push(cardData.rank);
                 }
 
                 return result;

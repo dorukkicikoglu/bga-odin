@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `cards` (
   `card_type_arg` int(11) NOT NULL,
   `card_location` ENUM('draw_pile', 'player', 'on_table', 'was_on_table', 'discarded', 'returned_to_box') NOT NULL,
   `card_location_arg` int(11) NOT NULL,
-  `suit` TINYINT NOT NULL,
+  `suit` TINYINT NOT NULL COMMENT 'Value 7 is assigned to the Goat Card',
   `rank` TINYINT NOT NULL,
   PRIMARY KEY (`card_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;

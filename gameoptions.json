@@ -20,5 +20,19 @@
       }
     },
     "default": 15
+  },
+  "110": {
+    "name": "Play with Goat",
+    "values": {
+      "1": {
+        "name": "Add the Grumpy Goat card to the deck",
+        "tmdisplay": "Deck includes the Goat card"
+      },
+      "0": {
+        "name": "Disabled",
+        "tmdisplay": "Disabled"
+      }
+    },
+    "default": 0
   }
 }

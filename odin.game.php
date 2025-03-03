@@ -45,6 +45,7 @@ class odin extends Table
                 'last_hand_opener_player_id' => 10,
                 //game options
                 'game_length' => 100,
+                'add_goat' => 110,
             ),
             $userPrefs = array(
                 'auto_finish_hand' => 101,
@@ -121,6 +122,10 @@ class odin extends Table
             for($j = 1; $j <= HIGHEST_RANK; $j++)
                 $cardRows[] = "(NULL, 'card', '0', 'draw_pile', '0', '$i', '$j')";
 
+        $goatAdded = (int) $this->globalsManager->get('add_goat') == 1;
+        if($goatAdded)
+            $cardRows[] = "(NULL, 'card', '0', 'draw_pile', '0', '7', '0')";
+        
         self::DbQuery("INSERT INTO cards (card_id, card_type, card_type_arg, card_location, card_location_arg, suit, rank) VALUES ".implode(',', $cardRows)); 
 
         if(self::getPlayersNumber() === 2){ //in a 2-player game, remove 2 suits
@@ -131,8 +136,6 @@ class odin extends Table
 
             self::DbQuery("UPDATE cards SET card_location = 'returned_to_box' WHERE suit = $removedRedOrBlack OR suit = $otherRemovedColor");
         }
-
-        $this->tableManager->shuffleAndDealCards();
 
         $gameLength = (int) $this->globalsManager->get('game_length');
         $startScore = ($gameLength == ONE_HAND_GAME_SPECIAL_VALUE) ? HAND_SIZE : $gameLength; 
@@ -180,6 +183,7 @@ class odin extends Table
         $result['prevSet'] = isset($prevSetData['tableCards']) ? $prevSetData['tableCards'] : [];
 
         $result['pref_names'] = $this->globalsManager->userPrefs;
+        $result['GOAT_SUIT'] = GOAT_SUIT;
 
         return $result;
     }
@@ -237,7 +241,7 @@ class odin extends Table
 
     function getCardLogHTML($cardData){ 
         $suitData = SUIT_DATA[(int) $cardData['suit']];
-        return '<div style="display: inline-block;margin-left: 8px; background-color: #'.$suitData['colorCode'].'; transform: rotate(45deg); width: 16px; height: 16px; "><span style="position: absolute;opacity: 0;width: 0px;height: 0px;">'.$suitData['name'].'-</span><span style="position: absolute; width: 100%; height: 100%; transform: rotate(-45deg); text-align: center; line-height: 18px; color: #f8f4ed;">'.$cardData['rank'].'</span></div>'; 
+        return '<div style="display: inline-block;margin-left: 8px; background: '.$suitData['colorCode'].'; transform: rotate(45deg); width: 16px; height: 16px; "><span style="position: absolute;opacity: 0;width: 0px;height: 0px;">'.$suitData['name'].'-</span><span style="position: absolute; width: 100%; height: 100%; transform: rotate(-45deg); text-align: center; line-height: 18px; color: #f8f4ed;">'.$cardData['rank'].'</span></div>'; 
     }
 
 //////////////////////////////////////////////////////////////////////////////

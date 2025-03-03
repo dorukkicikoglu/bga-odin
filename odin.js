@@ -38,6 +38,7 @@ function (dojo, declare) {
             this.tableHandler = null;
             this.prefHandler = null;
             this.backgroundHandler = null;
+            this.GOAT_SUIT = null;
 
             this.imageLoader = new bgagame.ImageLoadHandler(this, ['odin-cards', 'bg-odin', 'bg-front']);
         },
@@ -46,6 +47,8 @@ function (dojo, declare) {
         {
             console.log( "Starting game setup" );
             
+            this.GOAT_SUIT = gamedatas.GOAT_SUIT;
+
             this.animationHandler = new bgagame.AnimationHandler(this);
             this.prefHandler = new bgagame.PrefHandler(this, gamedatas.pref_names);
  
@@ -68,6 +71,8 @@ function (dojo, declare) {
 
             this.tableHandler = new bgagame.TableHandler(this, this.gamedatas.tableCards, this.gamedatas.prevSet);
             this.backgroundHandler = new bgagame.BackgroundHandler(this);
+
+            this.addGoatCardTooltip();
 
             this.observeLogs();
 
@@ -324,6 +329,53 @@ function (dojo, declare) {
             nums = parseInt(nums.join(''))
 
             return nums;
+        },
+
+        addGoatCardTooltip(){
+            let goatCard = dojo.query('.a-card[suit=' + this.GOAT_SUIT + ']', this.cardsContainer);
+            if(goatCard.length <= 0)
+                return;
+
+            goatCard = goatCard[0];
+
+            dojo.attr(goatCard, 'id', 'goat-card');
+
+            let goatTooltipHTML_ekmek = '\
+                <div font-size: 12px;>\
+                    <div style="text-align: center; font-weight: bold; font-size: 20px;">\
+                        GRUMPY GOAT\
+                    </div>\
+                    <br>\
+                    <p style="text-align: center; font-size: 18px;">\
+                        The Grumpy Goat is a joker card and stands for the number 0 in any color. If you start with the Grumpy Goat, \
+                        the value stands at 0. When you play multiple cards, the Grumpy Goat must be in \
+                        <u>last position</u>.\
+                    </p>\
+                    <br>\
+                    <p style="text-align: center; font-size: 18px;">\
+                        <strong>Example:</strong> If you play 2 and 7 of the same color and you use the Grumpy Goat, the value of your set is 720.\
+                    </p>\
+                    <br>\
+                    <p style="text-align: center; font-size: 18px;">\
+                        If you have the Grumpy Goat in your hand at the end of a hand, you lose 5 points.\
+                    </p>\
+                </div>\
+            '; //ekmek sil
+
+            let goatTooltipHTML = bga_format(_('*GRUMPY GOAT*\
+                    £The Grumpy Goat is a joker card and stands for the number 0 in any color. If you start with the Grumpy Goat, the value stands at 0. When you play multiple cards, the Grumpy Goat must be in the %last position%.£\
+                    €^Example:^ If you play 2 and 7 of the same color and you use the Grumpy Goat, the value of your set is 720.€\
+                    $If you have the Grumpy Goat in your hand at the end of a hand, you lose 5 points.$\
+            '), {
+                '*': (t) => '<div style="text-align: center; font-size: 16px;"><div style="text-align: center; font-weight: bold; font-size: 18px;">' + t + '</div>',
+                '£': (t) => '<br><p>' + t + '</p>',
+                '%': (t) => '<u>' + t + '</u>',
+                '^': (t) => '<strong>' + t + '</strong>',
+                '€': (t) => '<br><p>' + t + '</p>',
+                '$': (t) => '<br><p>' + t + '</p></div>'
+            });
+
+            this.addTooltipHtml('goat-card', goatTooltipHTML);
         },
 
         /* Implementation of proper colored You with background in case of white or light colors  */

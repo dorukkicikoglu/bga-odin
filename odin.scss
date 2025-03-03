@@ -218,7 +218,7 @@ body {
   .a-card-icon {
     &:before {
       content: "";
-      background-size: 900% 600%;
+      background-size: 1000% 600%;
     }
   
     &[suit="1"]::before {
@@ -244,28 +244,31 @@ body {
       background-position-x: 0%;
     }
     &[rank="2"]::before {
-      background-position-x: 800%;
+      background-position-x: 900%;
     }
     &[rank="3"]::before {
-      background-position-x: 700%;
+      background-position-x: 800%;
     }
     &[rank="4"]::before {
-      background-position-x: 600%;
+      background-position-x: 700%;
     }
     &[rank="5"]::before {
-      background-position-x: 500%;
+      background-position-x: 600%;
     }
     &[rank="6"]::before {
-      background-position-x: 400%;
+      background-position-x: 500%;
     }
     &[rank="7"]::before {
-      background-position-x: 300%;
+      background-position-x: 400%;
     }
     &[rank="8"]::before {
-      background-position-x: 200%;
+      background-position-x: 300%;
     }
     &[rank="9"]::before {
-      background-position-x: 100%;
+      background-position-x: 200%;
+    }
+    &[rank="0"]::before {
+      background-position-x: 100%; background-position-y: 100%;
     }
   
     &.a-card-clone {
