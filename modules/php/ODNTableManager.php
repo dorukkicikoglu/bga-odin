@@ -12,6 +12,15 @@ class TableManager extends APP_DbObject{
         $this->parent->cardsDeck->shuffle('draw_pile');
 
         $playerIDs = self::getObjectListFromDB("SELECT player_id FROM player", true);
+        $goatAdded = (int) $this->parent->globalsManager->get('add_goat') == 1;
+        if($goatAdded){
+            $goatLocationArg = $this->getUniqueValueFromDB("SELECT card_location_arg FROM cards WHERE suit = ".GOAT_SUIT);
+            $goatRandomLocation = mt_rand(0, HAND_SIZE * count($playerIDs) - 1);
+
+            self::DbQuery("UPDATE cards SET card_location_arg = $goatLocationArg WHERE card_location_arg = $goatRandomLocation");
+            self::DbQuery("UPDATE cards SET card_location_arg = $goatRandomLocation WHERE suit = ".GOAT_SUIT);
+        }
+
         foreach($playerIDs as $index => $player_id){
             $start = $index * HAND_SIZE;
             $end = $start + HAND_SIZE - 1;
@@ -151,8 +160,9 @@ class TableManager extends APP_DbObject{
         $rankDict = [];
 
         foreach($playedCardsData as $key => $row){
-            $suitDict[$row['suit']] = 1;
             $rankDict[$row['rank']] = 1;
+            if($row['suit'] != GOAT_SUIT)
+                $suitDict[$row['suit']] = 1;
         }
 
         return count(array_keys($suitDict)) == 1 || count(array_keys($rankDict)) == 1;
@@ -165,18 +175,22 @@ class TableManager extends APP_DbObject{
     }
 
     function doEndHand(){
-        $remainingCards = self::getCollectionFromDB("SELECT card_location_arg AS player_id, COUNT(*) AS card_count FROM cards WHERE card_location = 'player' GROUP BY card_location_arg", true);
-
+        $remainingCards = self::getCollectionFromDB("SELECT card_location_arg AS player_id, COUNT(*) AS card_count, MAX(CASE WHEN suit = ".GOAT_SUIT." THEN 'true' ELSE 'false' END) AS has_goat FROM cards WHERE card_location = 'player' GROUP BY card_location_arg");
         $playerScores = self::getCollectionFromDb( "SELECT player_id, player_score FROM player", true );
 
-        foreach($remainingCards as $nextPlayerID => $cardCount){
-            $cardCount = (int) $cardCount;
-            $playerScores[$nextPlayerID] -= $cardCount;
+        foreach($remainingCards as $nextPlayerID => $row){
+            $handScore = (int) $row['card_count'];
+
+            if($row['has_goat'] == 'true')
+                $handScore += GOAT_PENALTY;
+            
+            $playerScores[$nextPlayerID] -= $handScore;
+
             $this->DbQuery( "UPDATE player SET player_score = ".$playerScores[$nextPlayerID]." WHERE player_id = $nextPlayerID" );
 
             $this->parent->notifyAllPlayers("playerLosesPoints", clienttranslate('${player_name} loses ${score} ${SCORE_ICON}'), array(
                 'player_name' => $this->parent->getPlayerNameById($nextPlayerID),
-                'score' => $cardCount,
+                'score' => $handScore,
                 'SCORE_ICON' => '★'
             ));
         }

@@ -154,6 +154,7 @@ define([
                         this.gameui.players[cardsOwnerID].hand.removeCardsFromHandData(playedCardsData);
                     }
 
+                    this.gameui.addGoatCardTooltip();
                     onAnimationEnd();
                 };
                 slideAnimations.play();
