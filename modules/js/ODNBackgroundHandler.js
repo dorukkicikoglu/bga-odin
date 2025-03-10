@@ -4,8 +4,9 @@ define([
 ],
     function (dojo, declare) {
         var BackgroundHandler = declare("bgagame.BackgroundHandler", null, {
-            constructor(gameui) {
+            constructor(gameui, goatEnabled) {
             	this.gameui = gameui;
+            	this.goatEnabled = goatEnabled;
 
                 this.backgroundContainer = false;
                 this.captainDirection = false;
@@ -17,7 +18,7 @@ define([
             },
 
             displayBackground(){
-                this.backgroundContainer = dojo.place(jstpl_background_container, dojo.body(), 'first');
+                this.backgroundContainer = dojo.place(dojo.string.substitute(jstpl_background_container, {left_character: this.goatEnabled ? 'bg-goat' : 'bg-berserker bg-breathing-1'}), dojo.body(), 'first');
 
                 this.captain = dojo.query('.bg-captain', this.backgroundContainer)[0];
             },

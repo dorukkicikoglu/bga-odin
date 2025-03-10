@@ -505,13 +505,12 @@ body.mobile_version #page-content {
   height: 100%;
   background-position: center bottom;
 }
-.background-container .bg-breathing {
+.background-container .bg-breathing-1 {
   transform-origin: bottom center;
-}
-.background-container .bg-breathing.bg-breathing-1 {
   animation: breathing-1 4s ease-in-out infinite;
 }
-.background-container .bg-breathing.bg-breathing-2 {
+.background-container .bg-breathing-2 {
+  transform-origin: bottom center;
   animation: breathing-2 4s ease-in-out infinite;
 }
 .background-container .bg-captain {
@@ -561,6 +560,35 @@ body.mobile_version #page-content {
   background-image: url(img/bg_berserker.png);
   background-size: contain;
   background-repeat: no-repeat;
+}
+.background-container .bg-goat {
+  position: absolute;
+  left: 0vw;
+  bottom: -2vh;
+  width: calc(var(--char-width) * 1.7);
+  height: calc(var(--char-width) * 1.67);
+  background-image: url(img/bg_rainbow.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: bottom left;
+}
+.background-container .bg-goat::before {
+  width: 60%;
+  bottom: 28%;
+  left: 16%;
+}
+.background-container .bg-goat:after {
+  content: "";
+  position: absolute;
+  width: 88%;
+  height: 114%;
+  background-image: url(img/bg_goat.png);
+  background-size: contain;
+  background-repeat: no-repeat;
+  bottom: 35%;
+  left: 9%;
+  transform-origin: bottom center;
+  animation: breathing-2 4s ease-in-out infinite;
 }
 .background-container .bg-jarl {
   position: absolute;

@@ -42,7 +42,7 @@
 // Javascript HTML templates
 
 var jstpl_card_icon='<div class="a-card-icon" suit="${suit}" rank="${rank}" card-id="${card_id}"></div>';
-var jstpl_background_container='<div class="background-container"><div class="bg-captain"></div><div class="bg-front"></div><div class="bg-berserker has-shadow bg-breathing bg-breathing-1"></div><div class="bg-jarl has-shadow bg-breathing bg-breathing-2"></div></div>';
+var jstpl_background_container='<div class="background-container"><div class="bg-captain"></div><div class="bg-front"></div><div class="${left_character} has-shadow"></div><div class="bg-jarl has-shadow bg-breathing-2"></div></div>';
 
 </script>  
 

@@ -70,7 +70,7 @@ function (dojo, declare) {
             }
 
             this.tableHandler = new bgagame.TableHandler(this, this.gamedatas.tableCards, this.gamedatas.prevSet);
-            this.backgroundHandler = new bgagame.BackgroundHandler(this);
+            this.backgroundHandler = new bgagame.BackgroundHandler(this, gamedatas.GOAT_ENABLED);
 
             this.addGoatCardTooltip();
 

@@ -79,6 +79,8 @@ body {
       );
   }
   
+  @mixin add-breathing($type: null) { transform-origin: bottom center; animation: breathing-#{$type} 4s ease-in-out infinite; }
+  
   #game_play_area {
     min-height: 90vh;
   }
@@ -601,16 +603,8 @@ body {
       background-position: center bottom;
     }
   
-    .bg-breathing {
-      transform-origin: bottom center;
-  
-      &.bg-breathing-1 {
-        animation: breathing-1 4s ease-in-out infinite;
-      }
-      &.bg-breathing-2 {
-        animation: breathing-2 4s ease-in-out infinite;
-      }
-    }
+    .bg-breathing-1{ @include add-breathing(1); }
+    .bg-breathing-2{ @include add-breathing(2); }
   
     .bg-captain {
       position: absolute;
@@ -665,6 +659,11 @@ body {
         background-size: contain;
         background-repeat: no-repeat;
       }
+    }
+  
+    .bg-goat { position: absolute; left: 0vw; bottom: -2vh; width: calc(var(--char-width) * 1.7); height: calc(var(--char-width) * 1.67); background-image: url(img/bg_rainbow.png); background-size: cover; background-repeat: no-repeat; background-position: bottom left;
+      &::before { width: 60%; bottom: 28%; left: 16%; }
+      &:after { content: ""; position: absolute; width: 88%; height: 114%; background-image: url(img/bg_goat.png); background-size: contain; background-repeat: no-repeat; bottom: 35%; left: 9%; @include add-breathing(2); }
     }
   
     .bg-jarl {

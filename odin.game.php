@@ -184,6 +184,7 @@ class odin extends Table
 
         $result['pref_names'] = $this->globalsManager->userPrefs;
         $result['GOAT_SUIT'] = GOAT_SUIT;
+        $result['GOAT_ENABLED'] = (int) $this->globalsManager->get('add_goat') == 1;
 
         return $result;
     }
