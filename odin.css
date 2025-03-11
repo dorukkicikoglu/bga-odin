@@ -588,7 +588,7 @@ body.mobile_version #page-content {
   bottom: 35%;
   left: 9%;
   transform-origin: bottom center;
-  animation: breathing-2 4s ease-in-out infinite;
+  animation: breathing-1 4s ease-in-out infinite;
 }
 .background-container .bg-jarl {
   position: absolute;

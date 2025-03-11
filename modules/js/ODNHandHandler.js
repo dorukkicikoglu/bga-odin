@@ -451,25 +451,28 @@ define([
             },
 
             canPlayHigher(){
-                var suitAndRankDicts = this.getSuitAndRankDicts();
+                let suitAndRankDicts = this.getSuitAndRankDicts();
 
-                var tableValue = this.gameui.getCardsStrength(this.gameui.tableHandler.tableCards);
-                var canPlayHigher = false;
+                let tableValue = this.gameui.getCardsStrength(this.gameui.tableHandler.tableCards);
+                let canPlayHigher = false;
 
-                var hasGoat = dojo.query('.a-card[suit=' + this.gameui.GOAT_SUIT + ']', this.cardsContainer).length > 0;
-                var possibleSets = [];
-                for(var key in suitAndRankDicts.rankDict)
-                    possibleSets.push(suitAndRankDicts.rankDict[key]);
-                for(var key in suitAndRankDicts.suitDict){
+                let hasGoat = dojo.query('.a-card[suit=' + this.gameui.GOAT_SUIT + ']', this.cardsContainer).length > 0;
+                let possibleSetStrengths = [];
+                for(let key in suitAndRankDicts.rankDict)
+                    possibleSetStrengths.push(suitAndRankDicts.rankDict[key]);
+
+                for(let key in suitAndRankDicts.suitDict){
                     if(hasGoat)
-                        suitAndRankDicts.suitDict[key].push(0);
-                    possibleSets.push(suitAndRankDicts.suitDict[key]);
+                        suitAndRankDicts.suitDict[key].push({rank: 0, suit: this.gameui.GOAT_SUIT});
+                    possibleSetStrengths.push(suitAndRankDicts.suitDict[key]);
                 }
                 
-                while(possibleSets.length > 0){
-                    var nextSet = possibleSets.pop();
+                possibleSetStrengths = possibleSetStrengths.map(set => set.map(card => parseInt(card.rank)));
+
+                while(possibleSetStrengths.length > 0){
+                    let nextSet = possibleSetStrengths.pop();
                     nextSet.sort((a, b) => { return parseInt(b) - parseInt(a); });
-                    var nextSetValue = parseInt(nextSet.join(''));
+                    let nextSetValue = parseInt(nextSet.join(''));
                     
                     if(nextSetValue > tableValue)
                         return true;
@@ -584,14 +587,14 @@ define([
                     if(!result.rankDict.hasOwnProperty(cardData.rank))
                         result.rankDict[cardData.rank] = [];
 
-                    result.rankDict[cardData.rank].push(cardData.suit);
+                    result.rankDict[cardData.rank].push(cardData);
                     
                     if(cardData.suit == this.gameui.GOAT_SUIT && Object.keys(cardsDict).length > 1)
                         continue;
 
                     if(!result.suitDict.hasOwnProperty(cardData.suit))
                         result.suitDict[cardData.suit] = [];
-                    result.suitDict[cardData.suit].push(cardData.rank);
+                    result.suitDict[cardData.suit].push(cardData);
                 }
 
                 return result;

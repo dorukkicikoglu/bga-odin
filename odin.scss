@@ -663,7 +663,7 @@ body {
   
     .bg-goat { position: absolute; left: 0vw; bottom: -2vh; width: calc(var(--char-width) * 1.7); height: calc(var(--char-width) * 1.67); background-image: url(img/bg_rainbow.png); background-size: cover; background-repeat: no-repeat; background-position: bottom left;
       &::before { width: 60%; bottom: 28%; left: 16%; }
-      &:after { content: ""; position: absolute; width: 88%; height: 114%; background-image: url(img/bg_goat.png); background-size: contain; background-repeat: no-repeat; bottom: 35%; left: 9%; @include add-breathing(2); }
+      &:after { content: ""; position: absolute; width: 88%; height: 114%; background-image: url(img/bg_goat.png); background-size: contain; background-repeat: no-repeat; bottom: 35%; left: 9%; @include add-breathing(1); }
     }
   
     .bg-jarl {
