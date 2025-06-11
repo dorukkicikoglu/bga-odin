@@ -1,0 +1,34 @@
+{
+  "name": "odin",
+  "version": "1.0.0",
+  "description": "A BGA implementation of Odin",
+  "main": "odin.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch:scss": "sass --watch src/odin.scss:odin.css",
+    "watch": "concurrently \"npm run watch:scss\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dorukkicikoglu/bga-odin.git"
+  },
+  "keywords": [
+    "bga",
+    "board",
+    "game",
+    "odin",
+    "digital",
+    "board",
+    "game",
+    "adaptation"
+  ],
+  "author": "Doruk Kicikoglu",
+  "license": "BGA License",
+  "bugs": {
+    "url": "https://github.com/dorukkicikoglu/bga-odin/issues"
+  },
+  "homepage": "https://github.com/dorukkicikoglu/bga-odin#readme",
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

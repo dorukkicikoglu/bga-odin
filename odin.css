@@ -36,9 +36,7 @@ body.mobile_version {
 }
 
 .bgabutton {
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
 }
 
 .odn-yellow-button {
@@ -332,7 +330,9 @@ body.mobile_version #page-content {
   text-shadow: 2px 0 #f0f0f0, -2px 0 #f0f0f0, 0 2px #f0f0f0, 0 -2px #f0f0f0, 1px 1px #f0f0f0, -1px -1px #f0f0f0, 1px -1px #f0f0f0, -1px 1px #f0f0f0;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
+  -khtml-user-select: none;
   -moz-user-select: none;
+  -ms-user-select: none;
   user-select: none;
 }
 .my-hand-container .order-cards-button {
@@ -366,7 +366,9 @@ body.mobile_version #page-content {
   box-shadow: 0px 2px 4px #000000;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
+  -khtml-user-select: none;
   -moz-user-select: none;
+  -ms-user-select: none;
   user-select: none;
 }
 .table-container .table-owner-name-container .table-owner-player-name {
@@ -588,7 +590,7 @@ body.mobile_version #page-content {
   bottom: 35%;
   left: 9%;
   transform-origin: bottom center;
-  animation: breathing-1 4s ease-in-out infinite;
+  animation: breathing-goat 4s ease-in-out infinite;
 }
 .background-container .bg-jarl {
   position: absolute;
@@ -649,6 +651,14 @@ body.mobile_version .background-container .bg-berserker {
   }
 }
 @keyframes breathing-2 {
+  0%, 100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.975);
+  }
+}
+@keyframes breathing-goat {
   0%, 100% {
     transform: scaleY(1);
   }
@@ -832,4 +842,6 @@ body.mobile_version .background-container .bg-berserker {
   width: 70px;
   height: 70px;
   margin-left: 30px;
-}/*# sourceMappingURL=odin.css.map */
+}
+
+/*# sourceMappingURL=odin.css.map */
