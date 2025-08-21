@@ -153,13 +153,17 @@ function (dojo, declare) {
 
                         if(args.canPassTurn){
                             var playCardMenu = dojo.query('.play-card-menu', titleContainer)[0];
+                            playCardMenu.querySelectorAll('.pass-play-button').forEach(button => { button.remove(); });
                             playCardMenu.innerHTML += '<a class="pass-play-button odn-yellow-button bgabutton">' + _('Pass') + '</a>';
+                            // playCardMenu.innerHTML += '<a class="pass-play-button odn-yellow-button bgabutton ikincisi">' + _('Pass') + '</a>'; //lahmacun sil
                             dojo.attr(playCardMenu, 'has-selected-cards', 'false');
 
                             dojo.query('.pass-play-button', titleContainer).connect('onclick', this, () => { this.myself.hand.passTurn(); });
 
                             if(!this.myself.hand.canPlayHigher())
-                                this.timeBombButton(dojo.query('#page-title .pass-play-button')[0], 6000, {wiggleRoom: 2000, globalTimerName: 'passBomb'});
+                                this.setAutoClick(dojo.query('#page-title .pass-play-button')[0]);
+                            // if(!this.myself.hand.canPlayHigher()) //lahmacun sil
+                            //     this.setAutoClick(dojo.query('#page-title .pass-play-button')[1], 12000, 0, 'auto-pass');
                         }
                     break;
                 }
@@ -339,29 +343,7 @@ function (dojo, declare) {
             goatCard = goatCard[0];
 
             dojo.attr(goatCard, 'id', 'goat-card');
-
-            let goatTooltipHTML_ekmek = '\
-                <div font-size: 12px;>\
-                    <div style="text-align: center; font-weight: bold; font-size: 20px;">\
-                        GRUMPY GOAT\
-                    </div>\
-                    <br>\
-                    <p style="text-align: center; font-size: 18px;">\
-                        The Grumpy Goat is a joker card and stands for the number 0 in any color. If you start with the Grumpy Goat, \
-                        the value stands at 0. When you play multiple cards, the Grumpy Goat must be in \
-                        <u>last position</u>.\
-                    </p>\
-                    <br>\
-                    <p style="text-align: center; font-size: 18px;">\
-                        <strong>Example:</strong> If you play 2 and 7 of the same color and you use the Grumpy Goat, the value of your set is 720.\
-                    </p>\
-                    <br>\
-                    <p style="text-align: center; font-size: 18px;">\
-                        If you have the Grumpy Goat in your hand at the end of a hand, you lose 5 points.\
-                    </p>\
-                </div>\
-            '; //ekmek sil
-
+            
             let goatTooltipHTML = bga_format(_('*GRUMPY GOAT*\
                     £The Grumpy Goat is a joker card and stands for the number 0 in any color. If you start with the Grumpy Goat, the value stands at 0. When you play multiple cards, the Grumpy Goat must be in the %last position%.£\
                     €^Example:^ If you play 2 and 7 of the same color and you use the Grumpy Goat, the value of your set is 720.€\
@@ -412,76 +394,43 @@ function (dojo, declare) {
         isMobile: function () { return dojo.hasClass(dojo.body(), 'mobile_version'); },
 
         updateStatusText: function(statusText){ dojo.query('#page-title #pagemaintitletext')[0].innerHTML = statusText; },
-        updateStatusText: function(statusText){ dojo.query('#page-title #pagemaintitletext')[0].innerHTML = statusText; },
         
-        timeBombButton: function(button, time, args = {}) {
-            if(this.isViewOnly())
-                return;
-    
-            this.timeBombButton.globalTimers = this.timeBombButton.globalTimers || {};
-
-            var wiggleRoom = args.hasOwnProperty('wiggleRoom') ? args.wiggleRoom : 0;
-            var boomFunction = args.hasOwnProperty('boomFunction') ? args.boomFunction : false;
-            var globalTimerName = args.hasOwnProperty('globalTimerName') ? args.globalTimerName : false;
-
-            var isGlobalTimer = globalTimerName != false;
-
-            if(isGlobalTimer && this.timeBombButton.globalTimers.hasOwnProperty(globalTimerName)) 
-                time = this.timeBombButton.globalTimers[globalTimerName];
-            else if(wiggleRoom)
-                time += Math.random() * wiggleRoom;
-
-            this.timeBombButton.globalTimers[globalTimerName] = time;
-
-            var buttonText = dojo.attr(button, 'time-bomb-text');
-            if(!buttonText){
-                buttonText = button.innerHTML;
-                dojo.attr(button, 'time-bomb-text', buttonText);
+        /**
+         * Sets up auto-click functionality for a button after a timeout period
+         * @param button - The button HTML element to auto-click
+         * @param timeoutDuration - Base duration in ms before auto-click occurs (default: 5000)
+         * @param randomIncrement - Optional random additional ms to add to timeout (default: 2000)
+         * @param autoClickID - Optional ID for the auto-click events, multiple buttons can therefore point to the same autoClick event
+         * @param onAnimationEnd - Optional callback that returns boolean to control if click should occur (default: true)
+         */
+        setAutoClick: function(button, timeoutDuration = 5000, randomIncrement = 2000, autoClickID = null, onAnimationEnd = () => true) {
+            const totalDuration = timeoutDuration + Math.random() * randomIncrement;
+            this.setAutoClick.timeouts = this.setAutoClick.timeouts || {};
+            
+            if(!autoClickID){
+                this.setAutoClick.autoClickIncrement = this.setAutoClick.autoClickIncrement || 1;
+                autoClickID = 'auto-click-' + this.setAutoClick.autoClickIncrement++;
             }
+            this.setAutoClick.timeouts[autoClickID] = this.setAutoClick.timeouts[autoClickID] || [];
 
-            if(button.hasOwnProperty('timeBombTimeout'))
-                clearTimeout(button.timeBombTimeout);
+            button.style.setProperty('--bga-autoclick-timeout-duration', `${totalDuration}ms`);
+            button.classList.add('bga-autoclick-button');
 
-            button.timeBombTimeout = false;
-            var tickTimeBomb = () => {
-                if(!document.body.contains(button))
-                    return;
-
-                if(isGlobalTimer)
-                    time = this.timeBombButton.globalTimers[globalTimerName];
-
-                if(time <= 0){
-                    if(isGlobalTimer)
-                        delete this.timeBombButton.globalTimers[globalTimerName];
-
-                    button.innerHTML = buttonText;
-                    
-                    if(boomFunction)
-                        boomFunction();
-                    else button.click();
-
-                    return;
-                }
-
-                button.innerHTML = buttonText + ' (' + parseInt(time / 1000) + ')';
-                var reduce = ((time - 1) % 1000) + 1;
-                time -= reduce;
-
-                if(isGlobalTimer)
-                    this.timeBombButton.globalTimers[globalTimerName] = time;
-
-                button.timeBombTimeout = setTimeout(tickTimeBomb, reduce);
+            const stopDoubleTrigger = () => {
+                if(!this.setAutoClick.timeouts[autoClickID]) return;
+                this.setAutoClick.timeouts[autoClickID].forEach(timeout => clearTimeout(timeout));
+                delete this.setAutoClick.timeouts[autoClickID];
             }
-            tickTimeBomb();
-
-            var clickHandler = false;
-            clickHandler = dojo.connect(button, 'onclick', this, () => { 
-                clearTimeout(button.timeBombTimeout);
-                if(isGlobalTimer)
-                    delete this.timeBombButton.globalTimers[globalTimerName];
-
-                dojo.disconnect(clickHandler); 
-            });
+            button.addEventListener('click', stopDoubleTrigger, true);
+               
+            this.setAutoClick.timeouts[autoClickID].push(
+                setTimeout(() => {
+                    stopDoubleTrigger();
+                    if (!document.body.contains(button)) return;
+                    const customEventResult = onAnimationEnd();
+                    if (customEventResult) button.click();
+                }, totalDuration)
+            );
         },
 
         showTopBarTooltip(message, className = '', destroyTimeOut = false){
