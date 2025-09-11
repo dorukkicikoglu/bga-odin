@@ -155,15 +155,12 @@ function (dojo, declare) {
                             var playCardMenu = dojo.query('.play-card-menu', titleContainer)[0];
                             playCardMenu.querySelectorAll('.pass-play-button').forEach(button => { button.remove(); });
                             playCardMenu.innerHTML += '<a class="pass-play-button odn-yellow-button bgabutton">' + _('Pass') + '</a>';
-                            // playCardMenu.innerHTML += '<a class="pass-play-button odn-yellow-button bgabutton ikincisi">' + _('Pass') + '</a>'; //lahmacun sil
                             dojo.attr(playCardMenu, 'has-selected-cards', 'false');
 
                             dojo.query('.pass-play-button', titleContainer).connect('onclick', this, () => { this.myself.hand.passTurn(); });
 
                             if(!this.myself.hand.canPlayHigher())
                                 this.setAutoClick(dojo.query('#page-title .pass-play-button')[0]);
-                            // if(!this.myself.hand.canPlayHigher()) //lahmacun sil
-                            //     this.setAutoClick(dojo.query('#page-title .pass-play-button')[1], 12000, 0, 'auto-pass');
                         }
                     break;
                 }
@@ -398,7 +395,7 @@ function (dojo, declare) {
         /**
          * Sets up auto-click functionality for a button after a timeout period
          * @param button - The button HTML element to auto-click
-         * @param timeoutDuration - Base duration in ms before auto-click occurs (default: 5000)
+         * @param timeoutDuration - Optional base duration in ms before auto-click occurs (default: 5000)
          * @param randomIncrement - Optional random additional ms to add to timeout (default: 2000)
          * @param autoClickID - Optional ID for the auto-click events, multiple buttons can therefore point to the same autoClick event
          * @param onAnimationEnd - Optional callback that returns boolean to control if click should occur (default: true)
@@ -516,11 +513,11 @@ function (dojo, declare) {
                 this.players[notif.args.cardsOwnerID].setHandCount(notif.args.handCount);
 
             if(notif.args.shouldEndHand){
-                var statusBarArgs = {CARD_ICONS: notif.args.CARD_ICONS};
+                var statusBarArgs = {CARD_ICON_DIVS: this.createCardIcons(notif.args.CARD_ICONS)};
                 var playerFieldName = this.player_id.toString() == notif.args.cardsOwnerID.toString() ? 'playerYou' : 'playerName';
                 statusBarArgs[playerFieldName] = this.divColoredPlayer(notif.args.cardsOwnerID);
 
-                var statusText = dojo.string.substitute(playerFieldName == 'playerYou' ? _('${playerYou} cleared hand with ${CARD_ICONS}') : _('${playerName} cleared hand with ${CARD_ICONS}'), statusBarArgs);
+                var statusText = dojo.string.substitute(playerFieldName == 'playerYou' ? _('${playerYou} cleared hand with ${CARD_ICON_DIVS}') : _('${playerName} cleared hand with ${CARD_ICON_DIVS}'), statusBarArgs);
                 $('gameaction_status').innerHTML = statusText;
                 this.updateStatusText(statusText);
 
@@ -561,7 +558,7 @@ function (dojo, declare) {
             console.log(notif);
 
             var playerNameDiv = this.divColoredPlayer(notif.args.cardsOwnerID);
-            var statusText = dojo.string.substitute((this.isCurrentPlayerActive() ? _('${playerYou} are taking ${CARD_ICONS}') : _('${textPlayerID} is taking ${CARD_ICONS}')), { playerYou: playerNameDiv, textPlayerID: playerNameDiv, CARD_ICONS: notif.args['CARD_ICONS'] } );
+            var statusText = dojo.string.substitute((this.isCurrentPlayerActive() ? _('${playerYou} are taking ${CARD_ICON_DIVS}') : _('${textPlayerID} is taking ${CARD_ICON_DIVS}')), { playerYou: playerNameDiv, textPlayerID: playerNameDiv, CARD_ICON_DIVS: this.createCardIcons(notif.args['CARD_ICONS']) } );
 
             $('pagemaintitletext').innerHTML = statusText;
             $('gameaction_status').innerHTML = statusText;
