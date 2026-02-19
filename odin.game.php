@@ -83,7 +83,7 @@ class odin extends Table
  
         // Create players
         // Note: if you added some extra field on "player" table in the database (dbmodel.sql), you can initialize it there.
-        $sql = "INSERT INTO player (player_id, player_color, player_canal, player_name, player_avatar) VALUES ";
+        $sql = "INSERT INTO player (`player_id`, `player_color`, `player_canal`, `player_name`, `player_avatar`) VALUES ";
         $values = array();
         foreach( $players as $player_id => $player )
         {
@@ -126,7 +126,7 @@ class odin extends Table
         if($goatAdded)
             $cardRows[] = "(NULL, 'card', '0', 'draw_pile', '0', '7', '0')";
         
-        self::DbQuery("INSERT INTO cards (card_id, card_type, card_type_arg, card_location, card_location_arg, suit, rank) VALUES ".implode(',', $cardRows)); 
+        self::DbQuery("INSERT INTO cards (`card_id`, `card_type`, `card_type_arg`, `card_location`, `card_location_arg`, `suit`, `rank`) VALUES ".implode(',', $cardRows)); 
 
         if(self::getPlayersNumber() === 2){ //in a 2-player game, remove 2 suits
             $allColors = range(1, SUIT_COUNT);
@@ -134,12 +134,12 @@ class odin extends Table
             $colorsRemaining = array_values(array_filter($allColors, fn($suit) => $suit !== $removedRedOrBlack));
             $otherRemovedColor = $colorsRemaining[array_rand($colorsRemaining)];
 
-            self::DbQuery("UPDATE cards SET card_location = 'returned_to_box' WHERE suit = $removedRedOrBlack OR suit = $otherRemovedColor");
+            self::DbQuery("UPDATE `cards` SET `card_location` = 'returned_to_box' WHERE `suit` = $removedRedOrBlack OR `suit` = $otherRemovedColor");
         }
 
         $gameLength = (int) $this->globalsManager->get('game_length');
         $startScore = ($gameLength == ONE_HAND_GAME_SPECIAL_VALUE) ? HAND_SIZE : $gameLength; 
-        $this->DbQuery( "UPDATE player SET player_score = $startScore" );
+        $this->DbQuery( "UPDATE `player` SET `player_score` = $startScore" );
 
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
@@ -168,7 +168,7 @@ class odin extends Table
     
         // Get information about players
         // Note: you can retrieve some extra field you added for "player" table in "dbmodel.sql" if you need it.
-        $sql = "SELECT player_id id, player_no, player_score score FROM player ";
+        $sql = "SELECT `player_id` id, `player_no`, `player_score` score FROM `player` ";
         $result['players'] = $this->getCollectionFromDb( $sql );
         $otherPlayerHandCounts = $this->handManager->getPlayersHandCount();
 
@@ -176,7 +176,7 @@ class odin extends Table
             $result['players'][(string) $playerID]['handCount'] = $handCount;
 
         $result['my_hand'] = $this->handManager->getPlayerHand($current_player_id);
-        $result['sort_cards_by'] = $this->getUniqueValueFromDB("SELECT sort_cards_by FROM player WHERE player_id = $current_player_id");
+        $result['sort_cards_by'] = $this->getUniqueValueFromDB("SELECT `sort_cards_by` FROM `player` WHERE `player_id` = $current_player_id");
         $result['tableCards'] = $this->tableManager->getCardsOnTable();
         
         $prevSetData = $this->tableManager->getCardsWasOnTable();
@@ -205,11 +205,11 @@ class odin extends Table
         $progression = 0;
 
         if(($gameLength == ONE_HAND_GAME_SPECIAL_VALUE)){
-            $smallestHandCardsCount = (int) $this->getUniqueValueFromDB("SELECT COUNT(c.card_location_arg) AS card_count FROM player p LEFT JOIN cards c ON p.player_id = c.card_location_arg AND c.card_location = 'player' GROUP BY p.player_id ORDER BY card_count ASC LIMIT 1");
+            $smallestHandCardsCount = (int) $this->getUniqueValueFromDB("SELECT COUNT(c.`card_location_arg`) AS `card_count` FROM `player` p LEFT JOIN `cards` c ON p.`player_id` = c.`card_location_arg` AND c.`card_location` = 'player' GROUP BY p.`player_id` ORDER BY `card_count` ASC LIMIT 1");
 
             $progression = 100 * ((HAND_SIZE - $smallestHandCardsCount) / HAND_SIZE);
         } else {
-            $lowestPlayerScore = (int) $this->getUniqueValueFromDB("SELECT MIN(player_score) FROM player");
+            $lowestPlayerScore = (int) $this->getUniqueValueFromDB("SELECT MIN(`player_score`) FROM `player`");
             $progression = 100 * (($gameLength - $lowestPlayerScore) / $gameLength);
         }
 
@@ -258,7 +258,7 @@ class odin extends Table
         $current_player_id = self::getCurrentPlayerId();
         $sortBy = $isSuit ? 'suit' : 'rank';
 
-        self::DbQuery("UPDATE player SET sort_cards_by = '$sortBy' WHERE player_id = $current_player_id");
+        self::DbQuery("UPDATE `player` SET `sort_cards_by` = '$sortBy' WHERE `player_id` = $current_player_id");
     }
 
     function passTurn($autoPlay = false){
@@ -360,7 +360,7 @@ class odin extends Table
 
         $this->notifyAllPlayers('handStarted', clienttranslate('New hand begins!'), array('handSize' => HAND_SIZE, 'NEW_HAND_LOG_ROW' => true, 'preserve' => ['NEW_HAND_LOG_ROW']));
 
-        $playerIDs = self::getCollectionFromDb("SELECT player_id FROM player ", true);
+        $playerIDs = self::getCollectionFromDb("SELECT `player_id` FROM `player` ", true);
         foreach($playerIDs as $nextPlayerID => $value){
             $playerHand = $this->handManager->getPlayerHand($nextPlayerID);
             $this->notifyPlayer($nextPlayerID, 'handDealt', '', array('myHand' => $playerHand));
@@ -380,7 +380,7 @@ class odin extends Table
     }
 
     function stNewRound(){
-        self::DbQuery("UPDATE cards SET card_location = 'discarded', card_location_arg = 0 WHERE card_location = 'on_table'");
+        self::DbQuery("UPDATE `cards` SET `card_location` = 'discarded', `card_location_arg` = 0 WHERE `card_location` = 'on_table'");
         self::incStat(1, "table_total_round_count");
         
         $this->notifyAllPlayers('roundEnded', clienttranslate('New round begins!'), ["NEW_ROUND_LOG_ROW" => true, 'preserve' => ['NEW_ROUND_LOG_ROW']]);
@@ -395,7 +395,7 @@ class odin extends Table
         self::giveExtraTime($nextPlayerID);
         self::incStat(1, "player_turn_count", $nextPlayerID);
         
-        $lastPlayedCardsOwnerID = (int) $this->getUniqueValueFromDB("SELECT card_location_arg AS player_id FROM cards WHERE card_location = 'on_table' LIMIT 1");
+        $lastPlayedCardsOwnerID = (int) $this->getUniqueValueFromDB("SELECT `card_location_arg` AS player_id FROM `cards` WHERE `card_location` = 'on_table' LIMIT 1");
         if($lastPlayedCardsOwnerID == $nextPlayerID){
             $this->gamestate->nextState('newRound'); 
             return;

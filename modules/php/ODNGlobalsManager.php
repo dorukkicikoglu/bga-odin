@@ -47,6 +47,6 @@ class GlobalsManager extends APP_DbObject
     }
     function getPref($key, $playerID)
     {
-        return (int) $this->getUniqueValueFromDB("SELECT pgp_value FROM bga_user_preferences WHERE pgp_preference_id = '" . $this->userPrefs[$key] . "' AND pgp_player = $playerID");
+        return (int) $this->getUniqueValueFromDB("SELECT `pgp_value` FROM `bga_user_preferences` WHERE `pgp_preference_id` = '" . $this->userPrefs[$key] . "' AND `pgp_player` = $playerID");
     }
 }

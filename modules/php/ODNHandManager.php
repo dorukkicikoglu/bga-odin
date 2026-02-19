@@ -8,13 +8,13 @@ class HandManager extends APP_DbObject{
     }
 
     function getPlayerHand($playerID) { 
-        $orderBy = $this->getUniqueValueFromDB("SELECT sort_cards_by FROM player WHERE player_id = $playerID");
+        $orderBy = $this->getUniqueValueFromDB("SELECT `sort_cards_by` FROM `player` WHERE `player_id` = $playerID");
 
         if($orderBy == 'suit')
-            $orderBy = 'suit, rank DESC';
-        else $orderBy = 'rank DESC, suit';
+            $orderBy = '`suit`, `rank` DESC';
+        else $orderBy = '`rank` DESC, `suit`';
 
-    	return $this->getObjectListFromDB( "SELECT card_id, suit, rank FROM cards WHERE card_location = 'player' AND card_location_arg = '$playerID' ORDER BY $orderBy" );
+    	return $this->getObjectListFromDB( "SELECT `card_id`, `suit`, `rank` FROM `cards` WHERE `card_location` = 'player' AND `card_location_arg` = '$playerID' ORDER BY $orderBy" );
     }
 
     function getPlayerHandCount($playerID){
@@ -23,9 +23,9 @@ class HandManager extends APP_DbObject{
     } 
 
     function getPlayersHandCount($playerIDs = null) { 
-        $playerIDsSQL = $playerIDs ? ' AND card_location_arg IN ('.implode(',', $playerIDs).') ' : '';
+        $playerIDsSQL = $playerIDs ? ' AND `card_location_arg` IN ('.implode(',', $playerIDs).') ' : '';
 
-        $handCounts = self::getCollectionFromDB("SELECT card_location_arg AS player_id, COUNT(*) AS card_count FROM cards WHERE card_location = 'player' ".$playerIDsSQL."GROUP BY card_location_arg", true);
+        $handCounts = self::getCollectionFromDB("SELECT `card_location_arg` AS player_id, COUNT(*) AS `card_count` FROM `cards` WHERE `card_location` = 'player' ".$playerIDsSQL."GROUP BY `card_location_arg`", true);
 
         foreach ($handCounts as $playerID => $handCount)
         	$handCounts[$playerID] = (int) $handCount;
@@ -33,19 +33,19 @@ class HandManager extends APP_DbObject{
     	return $handCounts;
     }
 
-    function giveCardToPlayer($cardID, $playerID){ self::DbQuery("UPDATE cards SET card_location = 'player', card_location_arg = $playerID  WHERE card_id = $cardID"); }
+    function giveCardToPlayer($cardID, $playerID){ self::DbQuery("UPDATE `cards` SET `card_location` = 'player', `card_location_arg` = $playerID  WHERE `card_id` = $cardID"); }
 
     function takeCardFromTableToHand($cardID, $autoPlay = false, $zombiePlayerID = false){
         $this->parent->checkAction('takeCardFromTableToHand');
 
         $takerPlayerID = $zombiePlayerID ? $zombiePlayerID : $this->parent->getActivePlayerId();
 
-        $takenCardData = $this->getObjectFromDB( "SELECT card_id, suit, rank FROM cards WHERE card_location = 'was_on_table' AND card_id=$cardID" );
+        $takenCardData = $this->getObjectFromDB( "SELECT `card_id`, `suit`, `rank` FROM `cards` WHERE `card_location` = 'was_on_table' AND `card_id` = $cardID" );
         if(!isset($takenCardData['card_id']))
             $this->parent->sendError(112);
 
         $this->giveCardToPlayer($cardID, $takerPlayerID);
-        self::DbQuery("UPDATE cards SET card_location = 'discarded', card_location_arg = 0 WHERE card_location = 'was_on_table'");
+        self::DbQuery("UPDATE `cards` SET `card_location` = 'discarded', `card_location_arg` = 0 WHERE `card_location` = 'was_on_table'");
 
         if(!$autoPlay)
             $this->parent->giveExtraTime($takerPlayerID);

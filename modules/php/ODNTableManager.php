@@ -8,32 +8,32 @@ class TableManager extends APP_DbObject{
     }
 
     function shuffleAndDealCards(){
-        self::DbQuery("UPDATE cards SET card_location = 'draw_pile' WHERE card_location <> 'returned_to_box'");
+        self::DbQuery("UPDATE `cards` SET `card_location` = 'draw_pile' WHERE `card_location` <> 'returned_to_box'");
         $this->parent->cardsDeck->shuffle('draw_pile');
 
-        $playerIDs = self::getObjectListFromDB("SELECT player_id FROM player", true);
+        $playerIDs = self::getObjectListFromDB("SELECT `player_id` FROM player", true);
         $goatAdded = (int) $this->parent->globalsManager->get('add_goat') == 1;
         if($goatAdded){
-            $goatLocationArg = $this->getUniqueValueFromDB("SELECT card_location_arg FROM cards WHERE suit = ".GOAT_SUIT);
+            $goatLocationArg = $this->getUniqueValueFromDB("SELECT `card_location_arg` FROM cards WHERE `suit` = ".GOAT_SUIT);
             $goatRandomLocation = mt_rand(0, HAND_SIZE * count($playerIDs) - 1);
 
-            self::DbQuery("UPDATE cards SET card_location_arg = $goatLocationArg WHERE card_location_arg = $goatRandomLocation");
-            self::DbQuery("UPDATE cards SET card_location_arg = $goatRandomLocation WHERE suit = ".GOAT_SUIT);
+            self::DbQuery("UPDATE `cards` SET `card_location_arg` = $goatLocationArg WHERE `card_location_arg` = $goatRandomLocation");
+            self::DbQuery("UPDATE `cards` SET `card_location_arg` = $goatRandomLocation WHERE `suit` = ".GOAT_SUIT);
         }
 
         foreach($playerIDs as $index => $player_id){
             $start = $index * HAND_SIZE;
             $end = $start + HAND_SIZE - 1;
 
-            self::DbQuery("UPDATE cards SET card_location = 'player', card_location_arg = $player_id WHERE card_location = 'draw_pile' AND card_location_arg >= $start AND card_location_arg <= $end");
+            self::DbQuery("UPDATE `cards` SET `card_location` = 'player', `card_location_arg` = $player_id WHERE `card_location` = 'draw_pile' AND `card_location_arg` >= $start AND `card_location_arg` <= $end");
         }
     }
 
-    function getTableCardsCount($cardLocation = 'on_table'){ return (int) $this->getUniqueValueFromDB("SELECT count(*) FROM cards WHERE card_location = '$cardLocation'"); }
+    function getTableCardsCount($cardLocation = 'on_table'){ return (int) $this->getUniqueValueFromDB("SELECT count(*) FROM `cards` WHERE `card_location` = '$cardLocation'"); }
     function getWasTableCardsCount(){ return $this->getTableCardsCount('was_on_table'); }
 
     function getCardsOnTable($cardLocation = 'on_table'){ 
-        $tableCards = $this->getObjectListFromDB( "SELECT card_id, suit, rank, card_location_arg as card_owner_id FROM cards WHERE card_location = '$cardLocation' ORDER BY rank DESC, suit" ); 
+        $tableCards = $this->getObjectListFromDB( "SELECT `card_id`, `suit`, `rank`, `card_location_arg` as card_owner_id FROM `cards` WHERE `card_location` = '$cardLocation' ORDER BY `rank` DESC, `suit`" ); 
         if(!$tableCards)
             return [];
 
@@ -80,7 +80,7 @@ class TableManager extends APP_DbObject{
         $activePlayerID = $this->parent->getActivePlayerId();
 
         $cardIDsSQL = implode(',', $cardIDs);
-        $playedCardsData = $this->getObjectListFromDB( "SELECT card_id, suit, rank FROM cards WHERE card_id IN ($cardIDsSQL) AND card_location = 'player' AND card_location_arg = $activePlayerID ORDER BY suit, rank DESC" );
+        $playedCardsData = $this->getObjectListFromDB( "SELECT `card_id`, `suit`, `rank` FROM `cards` WHERE `card_id` IN ($cardIDsSQL) AND `card_location` = 'player' AND `card_location_arg` = $activePlayerID ORDER BY `suit`, `rank` DESC" );
 
         if(!$this->doCardsMakeSet($playedCardsData)){
             !$autoPlay && $this->parent->sendError(111);
@@ -111,8 +111,8 @@ class TableManager extends APP_DbObject{
             }
         }
 
-        self::DbQuery("UPDATE cards SET card_location = 'was_on_table' WHERE card_location = 'on_table'"); //place previous table cards to the side
-        self::DbQuery("UPDATE cards SET card_location = 'on_table' WHERE card_id IN ($cardIDsSQL)"); //place selected cards on the table
+        self::DbQuery("UPDATE `cards` SET `card_location` = 'was_on_table' WHERE `card_location` = 'on_table'"); //place previous table cards to the side
+        self::DbQuery("UPDATE `cards` SET `card_location` = 'on_table' WHERE `card_id` IN ($cardIDsSQL)"); //place selected cards on the table
         $this->parent->giveExtraTime($activePlayerID);
         
         $highestPlayedNumber_table = (int) $this->parent->getStat("table_highest_played_number");
@@ -175,8 +175,8 @@ class TableManager extends APP_DbObject{
     }
 
     function doEndHand(){
-        $remainingCards = self::getCollectionFromDB("SELECT card_location_arg AS player_id, COUNT(*) AS card_count, MAX(CASE WHEN suit = ".GOAT_SUIT." THEN 'true' ELSE 'false' END) AS has_goat FROM cards WHERE card_location = 'player' GROUP BY card_location_arg");
-        $playerScores = self::getCollectionFromDb( "SELECT player_id, player_score FROM player", true );
+        $remainingCards = self::getCollectionFromDB("SELECT `card_location_arg` AS player_id, COUNT(*) AS card_count, MAX(CASE WHEN `suit` = ".GOAT_SUIT." THEN 'true' ELSE 'false' END) AS has_goat FROM `cards` WHERE `card_location` = 'player' GROUP BY `card_location_arg`");
+        $playerScores = self::getCollectionFromDb( "SELECT `player_id`, `player_score` FROM `player`", true );
 
         foreach($remainingCards as $nextPlayerID => $row){
             $handScore = (int) $row['card_count'];
@@ -186,7 +186,7 @@ class TableManager extends APP_DbObject{
             
             $playerScores[$nextPlayerID] -= $handScore;
 
-            $this->DbQuery( "UPDATE player SET player_score = ".$playerScores[$nextPlayerID]." WHERE player_id = $nextPlayerID" );
+            $this->DbQuery( "UPDATE `player` SET `player_score` = ".$playerScores[$nextPlayerID]." WHERE `player_id` = $nextPlayerID" );
 
             $this->parent->notifyAllPlayers("playerLosesPoints", clienttranslate('${player_name} loses ${score} ${SCORE_ICON}'), array(
                 'player_name' => $this->parent->getPlayerNameById($nextPlayerID),
@@ -208,18 +208,15 @@ class TableManager extends APP_DbObject{
     function shouldEndGame(){
         $gameLength = (int) $this->parent->globalsManager->get('game_length');
 
-        if(($gameLength == ONE_HAND_GAME_SPECIAL_VALUE)){
-            $playerWithoutCards = $this->getObjectFromDB("SELECT p.player_id as player_id FROM player p LEFT JOIN cards c ON p.player_id = c.card_location_arg AND c.card_location = 'player' AND c.card_location_arg IS NULL LIMIT 1");
+        if(($gameLength == ONE_HAND_GAME_SPECIAL_VALUE))
+            return true;
 
-            return isset($playerWithoutCards['player_id']);
-        }
-
-        $finishedPlayer = $this->getObjectFromDB("SELECT player_id FROM player WHERE player_score <= 0 LIMIT 1");
+        $finishedPlayer = $this->getObjectFromDB("SELECT `player_id` FROM `player` WHERE `player_score` <= 0 LIMIT 1");
         return isset($finishedPlayer['player_id']);
     }
 
     function doEndGame(){ 
-        self::DbQuery("UPDATE cards SET card_location = 'discarded', card_location_arg = 0 WHERE card_location = 'was_on_table'");
+        self::DbQuery("UPDATE `cards` SET `card_location` = 'discarded', `card_location_arg` = 0 WHERE `card_location` = 'was_on_table'");
         $this->parent->gamestate->nextState('gameEnd'); 
     }
 }
